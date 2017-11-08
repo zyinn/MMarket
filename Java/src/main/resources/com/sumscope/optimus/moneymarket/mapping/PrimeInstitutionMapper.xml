@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.PrimeInstitutionMapper">
+    <resultMap id="BaseResultMap"
+        type="com.sumscope.optimus.moneymarket.model.dbmodel.PrimeCompany">
+        <result column="id" property="id" jdbcType="VARCHAR" />
+        <result column="institution_id" property="companyId" jdbcType="VARCHAR" />
+        <result column="telephone" property="telephone" jdbcType="VARCHAR" />
+        <result column="active" property="active" jdbcType="INTEGER" />
+    </resultMap>
+    <resultMap id="PhoneResultMap"
+               type="com.sumscope.optimus.moneymarket.model.dto.ContactNumber">
+        <result column="TELEPHONE" property="telephone" jdbcType="VARCHAR" />
+        <result column="MOBILE" property="mobile" jdbcType="VARCHAR" />
+    </resultMap>
+    <resultMap id="BaseResultContacts"
+               type="com.sumscope.optimus.moneymarket.model.dbmodel.Contact">
+        <result column="institution_id" property="institutionId" jdbcType="VARCHAR" />
+        <result column="contact_id" property="contactId" jdbcType="VARCHAR" />
+        <result column="quote_attribute" property="quoteAttribute" typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,institution_id,telephone,active
+    </sql>
+
+    <select id="retrieveAll" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from mm_prime_institution
+    </select>
+    
+    <select id = "retrieveAllPrimeInstitutionContacts" resultMap="BaseResultContacts" >
+        SELECT  institution_id,contact_id,quote_attribute
+            FROM mm_prime_contact_x;
+    </select>
+
+</mapper>

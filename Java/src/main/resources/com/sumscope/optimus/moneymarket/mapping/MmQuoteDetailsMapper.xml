@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.MmQuoteDetailsMapper">
+    <cache readOnly="true"/>
+    <resultMap id="MmQuoteDetailsMapper" type="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuoteDetails">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="quote_id" property="quoteId" jdbcType="VARCHAR"/>
+        <result column="days_low" property="daysLow" jdbcType="INTEGER"/>
+        <result column="days_high" property="daysHigh" jdbcType="INTEGER"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="price_low" property="priceLow" jdbcType="DECIMAL"/>
+        <result column="quantity" property="quantity" jdbcType="DECIMAL"/>
+        <result column="quantity_low" property="quantityLow" jdbcType="DECIMAL"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="qq_message" property="qqMessage" jdbcType="VARCHAR"/>
+        <result column="active" property="active" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <sql id="MmQuoteDetailsResultColumns">
+        id, quote_id,days_low, days_high, price, price_low, ceil(quantity) quantity, ceil(quantity_low) quantity_low, last_update_time, qq_message,active
+    </sql>
+
+    <!--查询报价详情信息 主键在参数集合里-->
+    <select id="queryMmQuoteDetailsByQuoteIDList" parameterType="java.util.List" resultMap="MmQuoteDetailsMapper">
+        select
+        <include refid="MmQuoteDetailsResultColumns"/>
+        from mm_quote_details
+        where quote_id in
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </select>
+
+    <insert id="insertMmQuoteDetailsList" parameterType="java.util.List" flushCache="true">
+        INSERT INTO mm_quote_details (id, quote_id,
+        price, price_low, quantity, quantity_low, last_update_time,
+        active, days_low, days_high, qq_message)
+        VALUES
+        <foreach item="item" index="index" collection="list"
+                 open="" separator="," close="">
+            (
+            #{item.id,jdbcType=VARCHAR}, #{item.quoteId,jdbcType=VARCHAR},
+            #{item.price,jdbcType=DECIMAL}, #{item.priceLow,jdbcType=DECIMAL},
+            #{item.quantity,jdbcType=DECIMAL}, #{item.quantityLow,jdbcType=DECIMAL},
+            now(),
+            #{item.active,jdbcType=INTEGER}, #{item.daysLow,jdbcType=INTEGER}, #{item.daysHigh,jdbcType=INTEGER},
+            #{item.qqMessage,jdbcType=VARCHAR}
+            )
+        </foreach>
+
+    </insert>
+
+    <update id="updateMmQuoteDetails" parameterType="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuoteDetails" flushCache="true">
+        UPDATE mm_quote_details
+        SET price            = #{price,jdbcType=DECIMAL},
+        price_low        = #{priceLow,jdbcType=DECIMAL},
+        quantity         = #{quantity,jdbcType=DECIMAL},
+        quantity_low     = #{quantityLow,jdbcType=DECIMAL},
+        last_update_time = now(),
+        active           = #{active,jdbcType=INTEGER},
+        qq_message       = #{qqMessage,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 虽然报价单主表尚未过期，但是其包含的明细可能已经过期，比如报价单有效期7天，但是其中对T1D进行了报价，根据期限定义，-->
+    <!-- 该条明细仅有效1天，因此需要作废-->
+    <update id = 'deactivateExpiredMmQuoteDetails' flushCache="true">
+        UPDATE mm_quote_details details
+        JOIN mm_quote quote ON details.quote_id = quote.id
+        SET active = 0
+        <![CDATA[
+        WHERE DATE_ADD(quote.create_time, INTERVAL days_high DAY) < now() AND active = 1;
+        ]]>
+    </update>
+
+    <!-- 一次性的将一系列报价单明细数据根据报价单ID从数据删除-->
+    <delete id="deleteMmQuoteDetails" parameterType="java.util.List" flushCache="true">
+        DELETE FROM mm_quote_details
+        WHERE quote_id IN
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+</mapper>

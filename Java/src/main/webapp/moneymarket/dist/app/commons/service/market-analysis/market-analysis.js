@@ -1,0 +1,1 @@
+!function(e){"use strict";e.module("directives",[]),e.module("services",[]),e.module("marketAnalysisApp",["directives","services"]);e.module("marketAnalysisApp");e.module("services").controller("matrixController",[function(){}]),e.module("services").controller("hchartsController",[function(){}])}(angular);

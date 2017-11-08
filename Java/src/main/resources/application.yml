@@ -1,0 +1,95 @@
+# 程序本地启动端口，生产环境不使用
+application.port: 8888
+# 删除导出历史数据的定时任务CRON表达式，当前表明每周一至周五22：15进行触发
+application.achievedata.schedule: "0 15 22 ? * * "
+# 是否允许创建虚拟数据
+application.enableMockData: ${application_enable_mock_data}
+
+#options跨域,true
+spring.mvc.dispatch-options-request: true
+
+# 系统总线信息
+application_messagebus:
+    #总线相关信息
+    messagebus:
+        # 总线类型，UM，ACTIVEMQ， 或者QPID
+        type: "${application_messagebus_type}"
+        # 总线URL，仅用于QPID和ACTIVEMQ
+        url: "${application_messagebus_url}"
+        # 报价主题
+        quote_persistence_topic: "${application_messagebus_quote_topic}"
+
+    qqmessagebus:
+        offline:
+            # 总线类型，UM，ACTIVEMQ， 或者QPID
+            type: "${qq_messagebus_offline_type}"
+            # 总线URL，仅用于QPID和ACTIVEMQ
+            url: "${qq_messagebus_offline_url}"
+            # 线下资金主题
+            topic: "${qq_messagebus_offline_topic}"
+        interbank:
+            # 总线类型，UM，ACTIVEMQ， 或者QPID
+            type: "${qq_messagebus_interbank_type}"
+            # 总线URL，仅用于QPID和ACTIVEMQ，对于UM其实有没有都没关系
+            url: "${qq_messagebus_interbank_url}"
+            # 同存主题
+            topic: "${qq_messagebus_interbank_topic}"
+
+    manualqqmessagebus:
+            offline:
+                # 总线类型，UM，ACTIVEMQ， 或者QPID
+                type: "${manual_qq_messagebus_offline_type}"
+                # 总线URL，仅用于QPID和ACTIVEMQ
+                url: "${manual_qq_messagebus_offline_url}"
+                # 线下资金主题
+                topic: "${manual_qq_messagebus_offline_topic}"
+            interbank:
+                # 总线类型，UM，ACTIVEMQ， 或者QPID
+                type: "${manual_qq_messagebus_interbank_type}"
+                # 总线URL，仅用于QPID和ACTIVEMQ，对于UM其实有没有都没关系
+                url: "${manual_qq_messagebus_interbank_url}"
+                # 同存主题
+                topic: "${manual_qq_messagebus_interbank_topic}"
+
+#数据库相关信息
+spring:
+  # default datasource 用于业务数据存放
+  datasource-primary:
+    url: "${application_datasource_url}"
+    driverClassName: "com.mysql.jdbc.Driver"
+    username: ${application_datasource_user}
+    password: "${application_datasource_password}"
+    min-idle: 5
+    max-active: 20
+    initial-size: 5
+    validation-query: "SELECT 1"
+    test-on-borrow: true
+# history datasource 用于历史数据存放
+  datasource-history:
+    url: "${history_datasource_url}"
+    driverClassName: "com.mysql.jdbc.Driver"
+    username: ${history_datasource_user}
+    password: "${history_datasource_password}"
+    min-idle: 5
+    max-active: 20
+    initial-size: 5
+    validation-query: "SELECT 1"
+    test-on-borrow: true
+
+# 外部系统相关设置
+external:
+  #CDH登录
+  cdhLogin: "${cdhlogin}"
+  username: "${cdhlogin_User}"
+  password: "${cdhlogin_Password}"
+  expireInSeconds: "${cdhlogin_ExpireInSeconds}"
+  # CDH应用调用位置
+  shiborUrl: "${external_shiborUrl}"
+  # CDH应用超时设置，单位毫秒
+  httpReadTimeout: 5000
+
+#initZabbix配置
+zabbix:
+  ip: "${ZabbixIp}"
+  port: "${ZabbixPort}"
+  hostName: "${ZabbixHostName}"

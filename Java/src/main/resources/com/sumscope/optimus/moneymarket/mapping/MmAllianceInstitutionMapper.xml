@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.MmAllianceInstitutionMapper">
+    <resultMap id="BaseResultMap"
+        type="com.sumscope.optimus.moneymarket.model.dbmodel.MmAllianceInstitution">
+        <result column="user_id" property="userId" jdbcType="VARCHAR" />
+        <result column="usecase" property="useCase" jdbcType="VARCHAR" />
+        <result column="primary_institution_id" property="primaryInstitutionId" jdbcType="VARCHAR" />
+        <result column="alliance_institution_id" property="allianceInstitutionId" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <resultMap id="BaseResultMapAlliance" type="com.sumscope.optimus.moneymarket.model.dbmodel.AllianceInstitution">
+        <result column="alliance_institution_id" property="allianceInstitutionId" jdbcType="VARCHAR" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        user_id,usecase
+    </sql>
+
+    <select id="isRecordExist" resultMap="BaseResultMap" parameterType="java.util.HashMap" >
+        select
+        <include refid="Base_Column_List" />
+        from mm_user_rights
+        where user_id = #{userId,jdbcType=VARCHAR} AND usecase = #{useCase,jdbcType=VARCHAR}
+    </select>
+
+    <select id="getAvailableInstitutionIds" resultType="String">
+        select alliance_institution_id from mm_alliance_institution_x where primary_institution_id = #{institutionId,jdbcType=VARCHAR}
+    </select>
+
+    <select id="isPrimaryInstitutions" resultType="java.lang.String">
+        select primary_institution_id from mm_alliance_institution_x
+            WHERE
+            primary_institution_id = #{userInstitutionId,jdbcType=VARCHAR}
+            OR
+            alliance_institution_id = #{userInstitutionId,jdbcType=VARCHAR} limit 1
+    </select>
+
+</mapper>

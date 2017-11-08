@@ -1,0 +1,390 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.MmQuoteMapper">
+    <cache readOnly="true"/>
+    <!-- 定义MmQuote的映射关系-->
+    <resultMap id="MmQuoteMainQueryResultMap" type="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuote">
+        <id column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="quote_type" property="quoteType"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="direction" property="direction"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="institution_id" property="institutionId" jdbcType="VARCHAR"/>
+        <result column="quote_user_id" property="quoteUserId" jdbcType="VARCHAR"/>
+        <result column="memo" property="memo" jdbcType="VARCHAR"/>
+        <result column="source" property="source"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="expired_date" property="expiredDate" jdbcType="TIMESTAMP"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="method_type" property="methodType"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="bank_nature" property="bankNature" jdbcType="CHAR"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="custodian_qualification" property="custodianQualification" jdbcType="CHAR"/>
+        <result column="fund_size" property="fundSize" jdbcType="DECIMAL"/>
+        <result column="quote_operator_id" property="quoteOperatorId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!-- 定义对应于MmQuote映射关系的数据库查询字段-->
+    <sql id="MmQuoteMainQueryResultColumns">
+        quote.id id,
+        quote.quote_type,
+        quote.direction,
+        quote.institution_id,
+        quote.quote_user_id,
+        quote.memo,
+        quote.source,
+        quote.create_time,
+        quote.expired_date,
+        quote.last_update_time,
+        quote.method_type,
+        quote.bank_nature,
+        quote.province,
+        quote.custodian_qualification,
+        quote.fund_size,
+        quote.quote_operator_id
+    </sql>
+
+    <!--对应于MmQuoteDetailsQueryResult 的映射关系-->
+    <resultMap id="MmQuoteDetailsQueryResultMap"
+               type="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuoteDetailsQueryResult">
+        <id column="id" property="quoteDetailId" jdbcType="VARCHAR"/>
+        <result column="quote_id" property="quoteId" jdbcType="VARCHAR"/>
+        <result column="quote_user_id" property="quoteUserId" jdbcType="VARCHAR"/>
+        <result column="institution_id" property="institutionId" jdbcType="VARCHAR"/>
+        <result column="expired_date" property="expiredDate" jdbcType="TIMESTAMP"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="quote_last_update_time" property="quoteLastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="quote_type" property="quoteType"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="direction" property="direction"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="price" property="price" jdbcType="DECIMAL"/>
+        <result column="price_low" property="priceLow" jdbcType="DECIMAL"/>
+        <result column="quantity" property="quantity" jdbcType="DECIMAL"/>
+        <result column="quantity_low" property="quantityLow" jdbcType="DECIMAL"/>
+        <result column="days_high" property="daysHigh" jdbcType="INTEGER"/>
+        <result column="days_low" property="daysLow" jdbcType="INTEGER"/>
+        <result column="memo" property="memo" jdbcType="VARCHAR"/>
+        <result column="source" property="source"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="active" property="active" jdbcType="BOOLEAN"/>
+        <result column="last_update_time" property="lastUpdateTime" jdbcType="TIMESTAMP"/>
+        <result column="qq_message" property="qqMessage" jdbcType="VARCHAR"/>
+        <result column="province" property="province" jdbcType="VARCHAR"/>
+        <result column="bank_nature" property="bankNature" jdbcType="VARCHAR"/>
+        <result column="fund_size" property="fundSize" jdbcType="DECIMAL"/>
+        <result column="custodian_qualification" property="custodianQualification" jdbcType="VARCHAR"/>
+        <result column="method_type" property="methodType"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="quote_operator_id" property="quoteOperatorId" jdbcType="VARCHAR"/>
+    </resultMap>
+
+    <!--  对应于MmQuoteDetailsQueryResult的数据库查询字段-->
+     <sql id="MmQuoteDetailsQueryResultColumns">
+         quote.id quote_id,
+         quote.quote_user_id,
+         quote.institution_id,
+         quote.expired_date,
+         quote.quote_type,
+         quote.direction,
+         quote.create_time,
+         quote.last_update_time quote_last_update_time,
+         quote.province,
+         quote.bank_nature,
+         quote.custodian_qualification,
+         quote.method_type,
+         qdetails.price,
+         qdetails.price_low,
+         qdetails.quantity,
+         qdetails.quantity_low,
+         qdetails.days_high,
+         qdetails.days_low,
+         quote.memo,
+         quote.source,
+         quote.fund_size,
+         qdetails.id id,
+         qdetails.active,
+         qdetails.last_update_time,
+         qdetails.qq_message,
+         quote.quote_operator_id
+     </sql>
+
+
+     <!--查询报价明细数据的SQL，该查询可获取所有明细数据以及对应的主表数据，但是无法获取主表相关的标签信息-->
+    <select id="queryMmQuoteDetails" resultMap="MmQuoteDetailsQueryResultMap"
+            parameterType="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuoteDetailsQueryParameters">
+        SELECT
+        <if test = "tagCodes != null">
+            DISTINCT
+        </if>
+        <include refid="MmQuoteDetailsQueryResultColumns"/>
+        FROM mm_quote_details qdetails
+        JOIN mm_quote quote on qdetails.quote_id = quote.id
+        <if test="primeQuotesOnly == true">
+            JOIN mm_prime_institution prime ON prime.institution_id = quote.institution_id AND prime.active = 1
+        </if>
+        <if test = "tagCodes != null">
+            JOIN mm_quote_tags_x quote_tags on quote_tags.quote_id = quote.id
+        </if>
+        WHERE 1 = 1
+        <include refid="GeneralMmQuoteQueryConditions"></include>
+        <include refid="MmQuoteDetailsQueryConditions"></include>
+        ORDER BY
+        last_update_time desc
+        <include refid="QueryLimit"></include>
+    </select>
+
+    <!--查询报价主表数据的SQL，该查询仅可获取Mm_Quote数据表内容，获取明细数据以及对应的标签数据需要其他SQL语句支持-->
+    <select id="queryMmQuoteMain" resultMap="MmQuoteMainQueryResultMap"
+            parameterType="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuoteMainQueryParameters">
+        SELECT
+        <if test = "tagCodes != null or (orderByPeriodLow != null and orderByPeriodHigh != null)">
+            DISTINCT
+        </if>
+        <include refid="MmQuoteMainQueryResultColumns"/>
+        FROM mm_quote quote
+        <include refid="joinByOrderCondition"></include>
+        <if test = "tagCodes != null">
+            JOIN mm_quote_tags_x quote_tags on quote_tags.quote_id = quote.id
+        </if>
+        <if test="primeQuotesOnly == true">
+            JOIN mm_prime_institution prime ON prime.institution_id = quote.institution_id AND prime.active = 1
+        </if>
+        WHERE 1 = 1
+        <include refid="GeneralMmQuoteQueryConditions"></include>
+        <if test="orderByPeriodLow != null and orderByPeriodHigh != null">
+            <if test="orderSeq == 'DESC'">
+                ORDER BY sort_price_low DESC,sort_price DESC
+            </if>
+            <if test="orderSeq == 'ASC'">
+                ORDER BY
+                  case when sort_price_low is null then 1000000000 else sort_price_low end ASC,
+                  case when sort_price is null then 1000000000 else sort_price end ASC
+            </if>
+        </if>
+        <if test="orderByPeriodLow == null or orderByPeriodHigh == null">
+            ORDER BY last_update_time desc
+        </if>
+        <include refid="QueryLimit"></include>
+    </select>
+
+    <!-- 排序仅按标准期限的上下限排序，既一个主表最多关联一条报价明细。如果关联多条报价明细时会造成排序混乱-->
+    <sql id="joinByOrderCondition">
+        <if test="orderByPeriodLow != null and orderByPeriodHigh != null">
+                LEFT JOIN
+                (
+                    SELECT quote_id sort_q_id, price sort_price, price_low sort_price_low FROM mm_quote_details
+            <![CDATA[
+                WHERE active = 1 AND (
+                    days_low  = #{orderByPeriodLow} AND days_high =  #{orderByPeriodHigh}
+                )
+              ]]>
+            )
+            sortQuoteDetails on sortQuoteDetails.sort_q_id = quote.id
+        </if>
+    </sql>
+
+    <!--实现分页逻辑-->
+    <sql id="QueryLimit">
+        <if test="paging == true">
+            limit #{startRows}, #{pageSize}
+        </if>
+    </sql>
+
+    <!--报价单查询通用约束设置，对应的是AbstractMmQuoteQueryParameters数据中的属性-->
+    <sql id="GeneralMmQuoteQueryConditions">
+        <if test = "quoteIdList != null">
+            AND quote.id IN
+            <foreach item="item" index="index" collection="quoteIdList"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="methodType != null">
+            and quote.method_type = #{methodType,typeHandler=com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler}
+        </if>
+        <if test="onlyValidQuotes == true">
+            <![CDATA[ and quote.expired_date  >= now() ]]>
+        </if>
+        <if test="onlyExpiredQuotes == true">
+            <![CDATA[ and quote.expired_date < now() ]]>
+        </if>
+        <if test = "tagCodes != null">
+            and quote_tags.tag_code in
+            <foreach item="item" index="index" collection="tagCodes"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="quoteTypes != null ">
+            and quote.quote_type in
+            <foreach item="item" index="index" collection="quoteTypes"
+                     open="(" separator="," close=")">
+                #{item,typeHandler=com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler}
+            </foreach>
+        </if>
+
+        <if test="direction != null">
+            and quote.direction = #{direction,typeHandler=com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler}
+        </if>
+
+        <if test="createTime != null">
+            <![CDATA[
+            and (quote.create_time  >=  #{createTimeBegin} and  quote.create_time <= #{createTimeEnd})
+            ]]>
+        </if>
+
+        <if test="calculationTime != null">
+            <![CDATA[
+            and (quote.create_time  <=  #{calculationTime} and  quote.expired_date >= #{calculationTime})
+            ]]>
+        </if>
+
+        <if test="quoteUserId != null">
+            and quote.quote_user_id = #{quoteUserId}
+        </if>
+
+        <if test="quoteOperatorId != null">
+            and quote.quote_operator_id = #{quoteOperatorId}
+        </if>
+        <if test="memo != null and memo != ''">
+            and quote.memo like CONCAT('%','${memo}','%' )
+        </if>
+
+        <if test="institutionIdList != null">
+            and quote.institution_id in
+            <foreach item="item" index="index" collection="institutionIdList"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="custodianQualification == true">
+            and quote.custodian_qualification = '1'
+        </if>
+
+        <if test="areas != null ">
+            and
+            quote.province in
+            <foreach item="item" index="index" collection="areas"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+
+        <if test="bankNatures == null and searchOtherBankNatures == true">
+            and
+            (quote.bank_nature NOT IN('1', '3', '4', '6') OR quote.bank_nature IS null)
+        </if>
+
+        <if test="bankNatures != null">
+            and
+            (
+            quote.bank_nature in
+            <foreach item="item" index="index" collection="bankNatures"
+                     open="(" separator="," close=")">
+                #{item}
+            </foreach>
+
+            <if test = "searchOtherBankNatures == true">
+                OR (quote.bank_nature NOT IN('1', '3', '4', '6') OR quote.bank_nature IS null)
+            </if>
+            )
+        </if>
+
+        <if test = "fundSizes != null">
+            AND
+            <foreach item="item" index="index" collection="fundSizes"
+                     open="(" separator=" OR " close=")">
+                <![CDATA[ ( quote.fund_size  >=  #{item.fundSizeLow} AND quote.fund_size  <=  #{item.fundSizeHigh} ) ]]>
+            </foreach>
+        </if>
+    </sql>
+
+
+    <!--仅用于查询报价明细的条件约束，对应的是MmQuoteDetailsQueryParameters对象中的属性-->
+    <sql id="MmQuoteDetailsQueryConditions">
+        <if test="daysLow >= 0 and daysHigh >= 0">
+            <![CDATA[
+                    and (
+                        (qdetails.days_low<=#{daysLow} and qdetails.days_high>=#{daysLow})
+                        or
+                        (qdetails.days_low<=#{daysHigh} and qdetails.days_high>=#{daysHigh})
+                        or
+                        (qdetails.days_low>=#{daysLow} and qdetails.days_high<=#{daysHigh})
+                    )
+                ]]>
+        </if>
+
+        <if test="active == true">
+            and qdetails.active = '1'
+        </if>
+    </sql>
+
+
+
+    <!--新增一系列报价单主表 -->
+    <insert id="insertMmQuotes" parameterType="java.util.List" flushCache="true">
+        INSERT INTO mm_quote (id, quote_type, institution_id, quote_user_id,sequence,direction,method_type,
+        memo, source,create_time,last_update_time,expired_date,province,bank_nature,custodian_qualification,fund_size,quote_operator_id )
+        VALUES
+        <foreach item="item" index="index" collection="list"
+                 open="" separator="," close="">
+            (
+            #{item.id,jdbcType=VARCHAR}, #{item.quoteType,jdbcType=CHAR}, #{item.institutionId,jdbcType=VARCHAR},
+            #{item.quoteUserId,jdbcType=VARCHAR},#{item.sequence,jdbcType=INTEGER}, #{item.direction,jdbcType=CHAR},#{item.methodType,jdbcType=CHAR},
+            #{item.memo,jdbcType=VARCHAR}, #{item.source,jdbcType=CHAR},#{item.createTime,jdbcType=TIMESTAMP},now(),#{item.expiredDate,jdbcType=TIMESTAMP},
+            #{item.province,jdbcType=VARCHAR}, #{item.bankNature,jdbcType=CHAR}, #{item.custodianQualification,jdbcType=CHAR},#{item.fundSize,jdbcType=DECIMAL},#{item.quoteOperatorId,jdbcType=VARCHAR}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateMmQuote" parameterType="com.sumscope.optimus.moneymarket.model.dbmodel.MmQuote" flushCache="true">
+        UPDATE mm_quote
+        SET memo = #{memo,jdbcType=VARCHAR},
+        direction = #{direction,jdbcType=CHAR},
+        <if test="source.displayString!='QQ'">
+            expired_date = #{expiredDate,jdbcType=TIMESTAMP},
+        </if>
+        last_update_time = now(),
+        quote_operator_id = #{quoteOperatorId,jdbcType=VARCHAR}
+        WHERE id = #{id,jdbcType=VARCHAR}
+    </update>
+
+    <!-- 一次性的将一系列报价单作废，作废方式为设置过期日期为昨日，过期日期由参数传递-->
+    <update id="deactivateMmQuote" parameterType="java.util.Map" flushCache="true">
+        UPDATE mm_quote
+        SET expired_date =  #{expiredDate,jdbcType=TIMESTAMP},
+            last_update_time = now()
+        WHERE id IN
+        <foreach item="item" index="index" collection="idList"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+    <!-- 一次性的将一系列报价单从数据删除-->
+    <delete id="deleteMmQuote" parameterType="java.util.List" flushCache="true">
+        DELETE FROM mm_quote
+        WHERE id IN
+        <foreach item="item" index="index" collection="list"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </delete>
+
+    <select id="retrieveQuoteUsersID"   resultType="java.lang.String">
+        SELECT DISTINCT quote_user_id
+        FROM mm_quote;
+    </select>
+
+    <select id="retrieveQuoteInstitutionsID" resultType="java.lang.String" >
+        SELECT DISTINCT institution_id
+        FROM mm_quote;
+    </select>
+
+</mapper>

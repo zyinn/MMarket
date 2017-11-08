@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.IdbFinancialCompanyDTOMapper" >
+  <resultMap id="BaseResultMap" type="com.sumscope.optimus.moneymarket.model.dbmodel.Institution" >
+    <id column="ID" property="id" jdbcType="VARCHAR" />
+    <result column="NAME" property="name" jdbcType="VARCHAR" />
+    <result column="PINYIN" property="pinyin" jdbcType="VARCHAR" />
+    <result column="PINYIN_FULL" property="pinyinFull" jdbcType="VARCHAR" />
+    <result column="custodian_qualification" property="qualification" jdbcType="VARCHAR" />
+    <result column="bank_nature" property="bankNature" jdbcType="CHAR" />
+    <result column="Province" property="province" jdbcType="VARCHAR" />
+    <result column="city_name" property="cityName" jdbcType="VARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="VARCHAR" />
+    <result column="is_head" property="isHead" jdbcType="CHAR" />
+    <result column="fund_size" property="fundSize" jdbcType="DECIMAL" />
+  </resultMap>
+  <sql id="Base_Column_List" >
+   fcompany.ID, fcompany.NAME, fcompany.PINYIN, fcompany.PINYIN_FULL,fcompany.bank_nature,fcompany.custodian_qualification,idbregion.Province,fcompany.city_name,
+   fcompany.parent_id,fcompany.is_head,head.fund_size
+  </sql>
+  <select id="queryAll" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from idb_financial_company fcompany left join idb_region idbregion on fcompany.city = idbregion.code
+    left JOIN idb_head_financial_company head on head.id = fcompany.id and fcompany.is_head = '1'
+    where fcompany.status='1'
+  </select>
+</mapper>

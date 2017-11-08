@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.MmQuotePriceTrendsMapper">
+    <resultMap id="MmQuotePriceTrendsMap" type="com.sumscope.optimus.moneymarket.model.dbmodel.PriceTrend">
+        <result column="id" property="id" jdbcType="VARCHAR"/>
+        <result column="direction" property="direction"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="quote_type" property="quoteType"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="matrix_bank_nature" property="matrixBankNature"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="matrix_fund_size" property="matrixFundSize"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="time_period" property="timePeriod"
+                typeHandler="com.sumscope.optimus.commons.databasetypehandler.EnumTypeHandler"/>
+        <result column="price_low" property="priceLow" jdbcType="DECIMAL"/>
+        <result column="price_high" property="priceHigh" jdbcType="DECIMAL"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <sql id="MmQuotePriceTrendsResultColumns">
+        id,quote_type,direction,matrix_bank_nature,matrix_fund_size,time_period,price_low,price_high,create_time
+    </sql>
+
+    <!--查询报价详情信息 主键在参数集合里-->
+    <select id="retrieveMmQuotePriceTrends" resultMap="MmQuotePriceTrendsMap"
+            parameterType="com.sumscope.optimus.moneymarket.model.dbmodel.PriceTrendsQueryParameters">
+        SELECT
+        <include refid="MmQuotePriceTrendsResultColumns"/>
+        FROM mm_quote_price_trends
+        Where 1 = 1
+        <if test = "direction != null">
+            AND direction = #{direction,jdbcType=VARCHAR}
+        </if>
+        <if test = "quoteType != null">
+            AND quote_type = #{quoteType,jdbcType=VARCHAR}
+        </if>
+        <if test = "matrixBankNature != null">
+            AND matrix_bank_nature = #{matrixBankNature,jdbcType=VARCHAR}
+        </if>
+        <if test = "matrixFundSize != null">
+            AND matrix_fund_size = #{matrixFundSize,jdbcType=VARCHAR}
+        </if>
+        <if test = "timePeriod != null">
+            AND time_period = #{timePeriod,jdbcType=VARCHAR}
+        </if>
+        <if test = "createTime != null">
+            <if test = "numberOfPreviousDays != null">
+                <![CDATA[ AND create_time <= #{createTime,jdbcType=TIMESTAMP} AND create_time >= date_add( #{createTime,jdbcType=TIMESTAMP}, INTERVAL #{numberOfPreviousDays,jdbcType=INTEGER}*-1 DAY)  ]]>
+            </if>
+            <if test = "numberOfPreviousDays == null">
+                 AND create_time = #{createTime,jdbcType=TIMESTAMP}
+            </if>
+        </if>
+    </select>
+
+    <!-- 按日期删除现有数据-->
+    <delete id = "deleteMmQuotePriceTrendsByTime" >
+        DELETE FROM mm_quote_price_trends
+        WHERE create_time = #{createTime}
+    </delete>
+
+    <!--插入数据 -->
+    <insert id = "insertMmQuotePriceTrends" parameterType="java.util.List">
+        INSERT INTO mm_quote_price_trends
+        (id,direction,quote_type,matrix_bank_nature,matrix_fund_size,time_period,price_low,price_high,create_time)
+            VALUES
+            <foreach item="item" index="index" collection="list"
+                     open="" separator="," close="">
+                (
+                #{item.id,jdbcType=VARCHAR},#{item.direction,jdbcType=VARCHAR},#{item.quoteType,jdbcType=VARCHAR},
+                #{item.matrixBankNature,jdbcType=VARCHAR},#{item.matrixFundSize,jdbcType=VARCHAR},
+                #{item.timePeriod,jdbcType=VARCHAR},#{item.priceLow,jdbcType=DECIMAL},#{item.priceHigh,jdbcType=DECIMAL},
+                #{item.createTime,jdbcType=TIMESTAMP}
+                )
+            </foreach>
+    </insert>
+
+
+
+</mapper>

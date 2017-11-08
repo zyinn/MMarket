@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sumscope.optimus.moneymarket.mapping.MmTagMapper">
+    <resultMap id="MmTagMapper" type="com.sumscope.optimus.moneymarket.model.dbmodel.MmTag">
+        <result column="tag_code" property="tagCode" jdbcType="VARCHAR"/>
+        <result column="tag_name" property="tagName" jdbcType="VARCHAR"/>
+        <result column="seq" property="seq" jdbcType="INTEGER"/>
+        <result column="active" property="active" jdbcType="BOOLEAN"/>
+    </resultMap>
+
+    <sql id="MmTagResultColumns">
+        tag_code,tag_name,seq,active
+    </sql>
+
+    <!--查询报价详情信息 主键在参数集合里-->
+    <select id="retrieveMmTags" resultMap="MmTagMapper">
+        SELECT
+        <include refid="MmTagResultColumns"/>
+        FROM mm_dict_tag
+        ORDER BY seq;
+    </select>
+</mapper>
